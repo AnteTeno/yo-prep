@@ -1,0 +1,97 @@
+
+{
+  "examCode": "pmat_k2025",
+  "subject": "matematiikka_pitka",
+  "year": 2025,
+  "isSpringExam": true,
+  "questions": [
+    {
+      "questionNumber": "1",
+      "questionJson": {
+        "text": "Anna tässä tehtävässä pelkkä vastaus ilman perusteluja. Vastauskenttään voi kirjoittaa vain yhden kokonaisluvun.",
+        "type": "multi_part",
+        "parts": [
+          {
+            "partNumber": "1.1",
+            "text": "Ratkaise yhtälö 5x-17=43",
+            "points": 2
+          },
+          {
+            "partNumber": "1.2",
+            "text": "Ratkaise potenssiyhtälö 2 x^3 - 128 = 0",
+            "points": 3
+          }
+        ]
+      },
+      "hvpJson": {
+        "1.1": {
+          "criteria": [
+            {"points": 1, "requirement": "Derivointikaava"},
+            {"points": 2, "requirement": "Oikea vastaus 2x"}
+          ]
+        },
+        "1.2": {
+          "criteria": [
+            {"points": 1, "requirement": "Integrointikaava"},
+            {"points": 2, "requirement": "Vakio mukana"},
+            {"points": 3, "requirement": "Täysin oikea: x³/3 + C"}
+          ]
+        }
+      },
+      "totalPoints": 5
+    },
+    {
+      "questionNumber": "2",
+      "questionJson": {
+        "text": "Tehtävä 2 sisältää osat a ja b",
+        "type": "multi_part",
+        "parts": [
+          {
+            "partNumber": "a",
+            "text": "Ratkaise yhtälö x² - 4 = 0",
+            "points": 2
+          },
+          {
+            "partNumber": "b",
+            "text": "Piirrä funktion kuvaaja",
+            "points": 3
+          }
+        ]
+      },
+      "hvpJson": {
+        "a": {
+          "criteria": [
+            {"points": 1, "requirement": "Oikea menetelmä"},
+            {"points": 2, "requirement": "Vastaukset x = ±2"}
+          ]
+        },
+        "b": {
+          "criteria": [
+            {"points": 1, "requirement": "Paraabelin muoto"},
+            {"points": 2, "requirement": "Nollakohdat oikein"},
+            {"points": 3, "requirement": "Symmetria ja huippu"}
+          ]
+        }
+      },
+      "totalPoints": 5
+    },
+    {
+      "questionNumber": "3",
+      "questionJson": {
+        "text": "Yksittäinen kysymys ilman osia",
+        "type": "single",
+        "parts": [],
+        "points": 4
+      },
+      "hvpJson": {
+        "criteria": [
+          {"points": 1, "requirement": "Aloitus"},
+          {"points": 2, "requirement": "Välivaiheet"},
+          {"points": 3, "requirement": "Laskenta"},
+          {"points": 4, "requirement": "Lopullinen vastaus"}
+        ]
+      },
+      "totalPoints": 4
+    }
+  ]
+}
