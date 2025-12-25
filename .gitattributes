@@ -1,2 +1,7 @@
 /mvnw text eol=lf
 *.cmd text eol=crlf
+
+# Linguist overrides - exclude data files from language statistics
+*.html linguist-documentation
+*.json linguist-data
+yoprep-data/** linguist-vendored
