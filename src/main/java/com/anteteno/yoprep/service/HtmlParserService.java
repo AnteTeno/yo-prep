@@ -1,8 +1,12 @@
 package com.anteteno.yoprep.service;
 
+import com.anteteno.yoprep.model.Question;
+import com.anteteno.yoprep.repository.QuestionRepository;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import lombok.RequiredArgsConstructor;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -11,13 +15,21 @@ import org.springframework.stereotype.Service;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 @Service
 public class HtmlParserService {
 
-    private final ObjectMapper objectMapper = new ObjectMapper();
+    private final ObjectMapper objectMapper;
+    private final QuestionRepository questionRepository;
+
+    public HtmlParserService(QuestionRepository questionRepository) {
+        this.objectMapper = new ObjectMapper();
+        this.questionRepository = questionRepository;
+    }
 
     /**
      * Parses YLE Abitreenit HTML file and converts it to JSON
@@ -165,5 +177,31 @@ public class HtmlParserService {
         }
 
         return 0;
+    }
+
+    public List<Question> parseAndSaveQuestions(
+            String htmlFilePath,
+            String examCode,
+            String subject,
+            int year,
+            boolean isSpringExam
+    ) throws IOException {
+        String examString = parseHtmlToJson(htmlFilePath, examCode, subject, year, isSpringExam);
+
+        ObjectNode examJson = (ObjectNode) objectMapper.readTree(examString);
+        ArrayNode questionsArray = (ArrayNode) examJson.get("questions");
+
+        List<Question> savedQuestions = new ArrayList<>();
+
+        for(JsonNode questionNode : questionsArray) {
+            ObjectNode questionObj = (ObjectNode) questionNode;
+
+            Question q = new Question();
+
+            q.setExamCode(examJson.get("examCode").toString());
+            q.setQuestionJson(questionObj);
+        }
+
+        return null;
     }
 }

@@ -23,7 +23,7 @@ public class TestController {
     @GetMapping("/parse")
     public String testHtmlParser() {
         try {
-            String htmlPath = "src/main/resources/data/readthis.html";
+            String htmlPath = "yoprep-data/htmls/readthis.html";
             String json = htmlParserService.parseHtmlToJson(
                 htmlPath,
                 "pmat_k2025",

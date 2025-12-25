@@ -1,4 +1,5 @@
 HELP.md
+TODO.md
 target/
 .mvn/wrapper/maven-wrapper.jar
 !**/src/main/**/target/
@@ -34,6 +35,7 @@ build/
 
 ### Claude ###
 CLAUDE.md
+
 
 ### Html files for parsing ###
 yoprep-data/

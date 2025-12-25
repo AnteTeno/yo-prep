@@ -29,7 +29,7 @@ public class UserService {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Email already in use");
         }
 
-        String hashedPassword = passwordEncoder.encode(password);
+        String hashedPassword = passwordEncoder.encode(user.getPassword());
         user.setPassword(hashedPassword);
 
 
@@ -53,19 +53,18 @@ public class UserService {
 
 
     public User login(String username, String password) {
-        User user = userRepository.findUserByUsername(username)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
-                        "Incorrect username"));
 
-        // Verify password
-        if (!passwordEncoder.matches(password, user.getPassword())) {
-            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED,
-                    "Incorrect username or password"));
+        if(userRepository.findUserByUsername(username) == null) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Incorrect username");
+        }
+
+        User user = userRepository.findUserByUsername(username);
+
+        if(!verifyPassword(password, user.getPassword())) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Incorrect password");
         }
 
         return user;
     }
-
-
 }
 
