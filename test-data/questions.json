@@ -1,0 +1,90 @@
+# Testikysymyksiä API:n testaamiseen
+# Kopioi JSON ja käytä curl-komennolla tai Postmanissa
+
+## Matematiikka - helppo
+curl -X POST http://localhost:8080/api/questions -H "Content-Type: application/json" -d '{
+  "examCode": "pmat_k2025",
+  "subject": "mathematics",
+  "questionNumber": 1,
+  "questionText": "Laske 2 + 2",
+  "correctAnswer": "4",
+  "points": 2,
+  "difficulty": "easy"
+}'
+
+## Matematiikka - keskitaso
+curl -X POST http://localhost:8080/api/questions -H "Content-Type: application/json" -d '{
+  "examCode": "pmat_k2025",
+  "subject": "mathematics",
+  "questionNumber": 2,
+  "questionText": "Ratkaise yhtälö: 2x + 5 = 15",
+  "correctAnswer": "x = 5",
+  "points": 4,
+  "difficulty": "medium"
+}'
+
+## Matematiikka - vaikea
+curl -X POST http://localhost:8080/api/questions -H "Content-Type: application/json" -d '{
+  "examCode": "pmat_k2025",
+  "subject": "mathematics",
+  "questionNumber": 3,
+  "questionText": "Derivoi funktio f(x) = 3x^2 + 2x - 1",
+  "correctAnswer": "f'(x) = 6x + 2",
+  "points": 6,
+  "difficulty": "hard"
+}'
+
+## Fysiikka - helppo
+curl -X POST http://localhost:8080/api/questions -H "Content-Type: application/json" -d '{
+  "examCode": "pfys_k2025",
+  "subject": "physics",
+  "questionNumber": 1,
+  "questionText": "Mikä on valon nopeus tyhjiössä?",
+  "correctAnswer": "299 792 458 m/s",
+  "points": 2,
+  "difficulty": "easy"
+}'
+
+## Fysiikka - keskitaso
+curl -X POST http://localhost:8080/api/questions -H "Content-Type: application/json" -d '{
+  "examCode": "pfys_k2025",
+  "subject": "physics",
+  "questionNumber": 2,
+  "questionText": "Laske kappaleen kiihtyvyys, kun massa on 10 kg ja voima 50 N",
+  "correctAnswer": "5 m/s^2",
+  "points": 4,
+  "difficulty": "medium"
+}'
+
+## Kemia - helppo
+curl -X POST http://localhost:8080/api/questions -H "Content-Type: application/json" -d '{
+  "examCode": "pkem_k2025",
+  "subject": "chemistry",
+  "questionNumber": 1,
+  "questionText": "Mikä on veden kemiallinen kaava?",
+  "correctAnswer": "H2O",
+  "points": 2,
+  "difficulty": "easy"
+}'
+
+## Englanti - keskitaso
+curl -X POST http://localhost:8080/api/questions -H "Content-Type: application/json" -d '{
+  "examCode": "peng_k2025",
+  "subject": "english",
+  "questionNumber": 1,
+  "questionText": "Translate to English: Minä rakastan ohjelmoinnista",
+  "correctAnswer": "I love programming",
+  "points": 3,
+  "difficulty": "medium"
+}'
+
+## Historia - helppo
+curl -X POST http://localhost:8080/api/questions -H "Content-Type: application/json" -d '{
+  "examCode": "phis_k2025",
+  "subject": "history",
+  "questionNumber": 1,
+  "questionText": "Minä vuonna Suomi itsenäistyi?",
+  "correctAnswer": "1917",
+  "points": 2,
+  "difficulty": "easy"
+}'

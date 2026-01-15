@@ -1,6 +1,6 @@
 package com.anteteno.yoprep.controller;
 
-import com.anteteno.yoprep.model.User;
+import com.anteteno.yoprep.entity.User;
 import com.anteteno.yoprep.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;

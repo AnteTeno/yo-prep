@@ -1,6 +1,6 @@
 package com.anteteno.yoprep.service;
 
-import com.anteteno.yoprep.model.User;
+import com.anteteno.yoprep.entity.User;
 import com.anteteno.yoprep.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
