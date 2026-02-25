@@ -20,7 +20,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-@DisplayName("QuestionService - Yksikkötestit")
+@DisplayName("QuestionServiceTests")
 class QuestionServiceTest {
 
     @Mock
@@ -30,7 +30,6 @@ class QuestionServiceTest {
     private QuestionService questionService;
 
     @Test
-    @DisplayName("getAllQuestions - Palauttaa kaikki kysymykset")
     void getAllQuestions_returnsAllQuestions() {
         List<Question> questions = List.of(
                 Question.builder().id(1L).subject("mathematics").questionText("Laske 2+2").build(),
@@ -46,7 +45,6 @@ class QuestionServiceTest {
     }
 
     @Test
-    @DisplayName("getAllQuestions - Tyhjä tietokanta palauttaa tyhjän listan")
     void getAllQuestions_emptyDatabase_returnsEmptyList() {
         when(questionRepository.findAll()).thenReturn(Collections.emptyList());
 
@@ -56,7 +54,6 @@ class QuestionServiceTest {
     }
 
     @Test
-    @DisplayName("getQuestionById - Löytyvä ID palauttaa kysymyksen")
     void getQuestionById_found_returnsQuestion() {
         Question question = Question.builder()
                 .id(1L)
@@ -73,7 +70,6 @@ class QuestionServiceTest {
     }
 
     @Test
-    @DisplayName("getQuestionById - Tuntematon ID heittää ResponseStatusException (404)")
     void getQuestionById_notFound_throwsException() {
         when(questionRepository.findById(99L)).thenReturn(Optional.empty());
 
@@ -83,7 +79,6 @@ class QuestionServiceTest {
     }
 
     @Test
-    @DisplayName("createQuestion - Tallentaa ja palauttaa kysymyksen")
     void createQuestion_savesAndReturnsQuestion() {
         Question input = Question.builder()
                 .examCode("pmat_k2025")
@@ -116,7 +111,6 @@ class QuestionServiceTest {
     }
 
     @Test
-    @DisplayName("deleteQuestion - Poistaa olemassaolevan kysymyksen")
     void deleteQuestion_existingId_deletesSuccessfully() {
         when(questionRepository.existsById(1L)).thenReturn(true);
 
@@ -126,7 +120,6 @@ class QuestionServiceTest {
     }
 
     @Test
-    @DisplayName("deleteQuestion - Tuntematon ID heittää ResponseStatusException (404)")
     void deleteQuestion_notFound_throwsException() {
         when(questionRepository.existsById(99L)).thenReturn(false);
 
@@ -138,7 +131,6 @@ class QuestionServiceTest {
     }
 
     @Test
-    @DisplayName("getRandomQuestion - Palauttaa kysymyksen kun niitä on tietokannassa")
     void getRandomQuestion_withQuestions_returnsOne() {
         List<Question> questions = List.of(
                 Question.builder().id(1L).questionText("Kysymys 1").build(),
@@ -153,7 +145,6 @@ class QuestionServiceTest {
     }
 
     @Test
-    @DisplayName("getRandomQuestion - Tyhjä tietokanta heittää ResponseStatusException (404)")
     void getRandomQuestion_emptyDatabase_throwsException() {
         when(questionRepository.findAll()).thenReturn(Collections.emptyList());
 

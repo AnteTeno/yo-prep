@@ -22,7 +22,7 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-@DisplayName("UserService - Yksikkötestit")
+@DisplayName("UserServiceTests")
 class UserServiceTest {
 
     @Mock
@@ -35,7 +35,6 @@ class UserServiceTest {
     private UserService userService;
 
     @Test
-    @DisplayName("createUser - Onnistunut rekisteröinti hashaa salasanan")
     void createUser_hashesPasswordBeforeSaving() {
         User input = User.builder()
                 .username("newuser")
@@ -60,7 +59,6 @@ class UserServiceTest {
     }
 
     @Test
-    @DisplayName("createUser - Duplikaatti-käyttäjänimi heittää poikkeuksen")
     void createUser_duplicateUsername_throwsException() {
         User existing = User.builder().username("taken").build();
         when(userRepository.findUserByUsername("taken")).thenReturn(existing);
@@ -79,7 +77,6 @@ class UserServiceTest {
     }
 
     @Test
-    @DisplayName("createUser - Duplikaatti-sähköposti heittää poikkeuksen")
     void createUser_duplicateEmail_throwsException() {
         User existing = User.builder().email("taken@example.com").build();
         when(userRepository.findUserByUsername(anyString())).thenReturn(null);
@@ -99,7 +96,6 @@ class UserServiceTest {
     }
 
     @Test
-    @DisplayName("getUserById - Löytyvä ID palauttaa käyttäjän")
     void getUserById_found_returnsUser() {
         User user = User.builder().id(1L).username("testuser").email("test@example.com").build();
         when(userRepository.findById(1L)).thenReturn(Optional.of(user));
@@ -110,7 +106,6 @@ class UserServiceTest {
     }
 
     @Test
-    @DisplayName("getUserById - Tuntematon ID heittää poikkeuksen")
     void getUserById_notFound_throwsException() {
         when(userRepository.findById(99L)).thenReturn(Optional.empty());
 
@@ -120,7 +115,6 @@ class UserServiceTest {
     }
 
     @Test
-    @DisplayName("getAllUsers - Palauttaa kaikki käyttäjät")
     void getAllUsers_returnsAllUsers() {
         List<User> users = List.of(
                 User.builder().id(1L).username("user1").build(),
@@ -134,7 +128,6 @@ class UserServiceTest {
     }
 
     @Test
-    @DisplayName("getAllUsers - Tyhjä tietokanta palauttaa tyhjän listan")
     void getAllUsers_emptyDatabase_returnsEmptyList() {
         when(userRepository.findAll()).thenReturn(Collections.emptyList());
 
@@ -142,7 +135,6 @@ class UserServiceTest {
     }
 
     @Test
-    @DisplayName("login - Oikeilla tunnuksilla palauttaa käyttäjän")
     void login_validCredentials_returnsUser() {
         User user = User.builder().id(1L).username("loginuser").password("$2a$10$hashedpassword").build();
         when(userRepository.findUserByUsername("loginuser")).thenReturn(user);
@@ -154,7 +146,6 @@ class UserServiceTest {
     }
 
     @Test
-    @DisplayName("login - Tuntematon käyttäjänimi heittää 404")
     void login_unknownUsername_throwsNotFound() {
         when(userRepository.findUserByUsername("unknown")).thenReturn(null);
 
@@ -164,7 +155,6 @@ class UserServiceTest {
     }
 
     @Test
-    @DisplayName("login - Väärä salasana heittää 401")
     void login_wrongPassword_throwsUnauthorized() {
         User user = User.builder().username("loginuser").password("$2a$10$hashedpassword").build();
         when(userRepository.findUserByUsername("loginuser")).thenReturn(user);
