@@ -3,12 +3,13 @@ import { useNavigate } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import api from '../services/api';
 
-export default function Practice() {
+export default function Practice({ user }) {
   const [question, setQuestion] = useState(null);
   const [userAnswer, setUserAnswer] = useState('');
   const [feedback, setFeedback] = useState(null);
   const [score, setScore] = useState({ correct: 0, total: 0 });
   const [loading, setLoading] = useState(true);
+  const [evaluating, setEvaluating] = useState(false);
   const navigate = useNavigate();
 
   const fetchRandom = () => {
@@ -22,19 +23,40 @@ export default function Practice() {
 
   useEffect(() => { fetchRandom(); }, []);
 
-  const checkAnswer = () => {
+  const checkAnswer = async () => {
     if (!userAnswer.trim() || !question) return;
 
-    const isCorrect = userAnswer.trim().toLowerCase() === question.correctAnswer.toLowerCase();
-    setFeedback({ isCorrect, correctAnswer: question.correctAnswer });
-    setScore(prev => ({
-      correct: prev.correct + (isCorrect ? 1 : 0),
-      total: prev.total + 1,
-    }));
+    if (user) {
+      setEvaluating(true);
+      try {
+        const submission = await api.submitAnswer(user.id, question.id, userAnswer);
+        setFeedback({
+          isAi: true,
+          grade: submission.aiGrade,
+          score: submission.aiScore,
+          maxScore: question.points,
+          feedbackText: submission.aiFeedback,
+        });
+        setScore(prev => ({
+          correct: prev.correct + (submission.aiScore > 0 ? 1 : 0),
+          total: prev.total + 1,
+        }));
+      } catch {
+        const isCorrect = userAnswer.trim().toLowerCase() === question.correctAnswer.toLowerCase();
+        setFeedback({ isAi: false, isCorrect, correctAnswer: question.correctAnswer });
+        setScore(prev => ({ correct: prev.correct + (isCorrect ? 1 : 0), total: prev.total + 1 }));
+      } finally {
+        setEvaluating(false);
+      }
+    } else {
+      const isCorrect = userAnswer.trim().toLowerCase() === question.correctAnswer.toLowerCase();
+      setFeedback({ isAi: false, isCorrect, correctAnswer: question.correctAnswer });
+      setScore(prev => ({ correct: prev.correct + (isCorrect ? 1 : 0), total: prev.total + 1 }));
+    }
   };
 
   const handleKeyDown = (e) => {
-    if (e.key === 'Enter' && !feedback) checkAnswer();
+    if (e.key === 'Enter' && !feedback && !evaluating) checkAnswer();
   };
 
   const subjectLabels = {
@@ -45,15 +67,18 @@ export default function Practice() {
   const difficultyColors = {
     easy: 'var(--color-success)', medium: 'var(--color-warning)', hard: 'var(--color-error)',
   };
+  const gradeColors = {
+    l: '#10B981', m: '#34D399', c: '#3B82F6', b: '#F59E0B', a: '#EF4444', i: '#DC2626',
+  };
 
   if (loading) {
-    return (<><Navbar /><div className="container"><p className="text-secondary">Ladataan...</p></div></>);
+    return (<><Navbar user={user} /><div className="container"><p className="text-secondary">Ladataan...</p></div></>);
   }
 
   if (!question) {
     return (
       <>
-        <Navbar />
+        <Navbar user={user} />
         <div className="container" style={{ textAlign: 'center', paddingTop: '60px' }}>
           <h2 style={{ marginBottom: '12px' }}>Ei kysymyksia saatavilla</h2>
           <p className="text-secondary" style={{ marginBottom: '24px' }}>
@@ -69,7 +94,7 @@ export default function Practice() {
 
   return (
     <>
-      <Navbar />
+      <Navbar user={user} />
       <div className="container" style={{ maxWidth: '800px' }}>
         {/* Score bar */}
         <div className="card" style={{
@@ -132,29 +157,78 @@ export default function Practice() {
 
         {/* Answer */}
         <div style={{ marginBottom: '16px' }}>
-          <input
-            type="text"
+          <textarea
             value={userAnswer}
             onChange={(e) => setUserAnswer(e.target.value)}
-            onKeyDown={handleKeyDown}
             placeholder="Kirjoita vastaus..."
-            disabled={!!feedback}
+            disabled={!!feedback || evaluating}
+            rows={user ? 4 : 1}
             style={{
-              width: '100%', padding: '14px', fontSize: '16px',
-              borderColor: feedback ? (feedback.isCorrect ? 'var(--color-success)' : 'var(--color-error)') : 'var(--border-default)',
+              width: '100%', padding: '14px', fontSize: '16px', resize: 'vertical', fontFamily: 'inherit',
+              borderColor: feedback
+                ? (feedback.isAi ? gradeColors[feedback.grade] || 'var(--border-default)' : (feedback.isCorrect ? 'var(--color-success)' : 'var(--color-error)'))
+                : 'var(--border-default)',
             }}
           />
         </div>
 
-        {!feedback ? (
+        {!feedback && !evaluating ? (
           <button
             className="btn-primary"
             style={{ width: '100%', padding: '14px', fontSize: '16px' }}
             onClick={checkAnswer}
             disabled={!userAnswer.trim()}
           >
-            Tarkista vastaus
+            {user ? 'Lahetä arvioitavaksi' : 'Tarkista vastaus'}
           </button>
+        ) : evaluating ? (
+          <div className="card" style={{ padding: '32px', textAlign: 'center' }}>
+            <p style={{ fontSize: '16px', fontWeight: '500', marginBottom: '8px' }}>
+              AI arvioi vastaustasi...
+            </p>
+            <p className="text-secondary" style={{ fontSize: '14px' }}>
+              Tama voi kestaa hetken
+            </p>
+          </div>
+        ) : feedback.isAi ? (
+          <div>
+            <div className="card" style={{
+              marginBottom: '16px', padding: '24px',
+              borderColor: gradeColors[feedback.grade] || 'var(--border-default)',
+            }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                  <span style={{
+                    fontSize: '28px', fontWeight: '700',
+                    color: gradeColors[feedback.grade] || 'var(--text-primary)',
+                    textTransform: 'uppercase',
+                  }}>
+                    {feedback.grade}
+                  </span>
+                  <span style={{ fontSize: '15px', fontWeight: '500' }}>AI-arviointi</span>
+                </div>
+                <span style={{
+                  padding: '6px 14px',
+                  backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                  color: 'var(--color-primary)',
+                  borderRadius: '16px', fontSize: '14px', fontWeight: '600',
+                }}>
+                  {feedback.score} / {feedback.maxScore} p
+                </span>
+              </div>
+              <p style={{ fontSize: '15px', lineHeight: '1.6', whiteSpace: 'pre-wrap' }}>
+                {feedback.feedbackText}
+              </p>
+            </div>
+
+            <button
+              className="btn-primary"
+              style={{ width: '100%', padding: '14px', fontSize: '16px' }}
+              onClick={fetchRandom}
+            >
+              Seuraava kysymys →
+            </button>
+          </div>
         ) : (
           <div>
             <div className="card" style={{
@@ -173,6 +247,11 @@ export default function Practice() {
               {!feedback.isCorrect && (
                 <p style={{ fontSize: '15px' }}>
                   Oikea vastaus: <strong>{feedback.correctAnswer}</strong>
+                </p>
+              )}
+              {!user && (
+                <p className="text-secondary" style={{ fontSize: '13px', marginTop: '8px' }}>
+                  Kirjaudu sisaan saadaksesi AI-arvioinnin!
                 </p>
               )}
             </div>

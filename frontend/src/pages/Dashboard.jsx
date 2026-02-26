@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import api from '../services/api';
 
-export default function Dashboard() {
+export default function Dashboard({ user }) {
   const [questions, setQuestions] = useState([]);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
@@ -33,7 +33,7 @@ export default function Dashboard() {
   if (loading) {
     return (
       <>
-        <Navbar />
+        <Navbar user={user} />
         <div className="container"><p className="text-secondary">Ladataan...</p></div>
       </>
     );
@@ -41,7 +41,7 @@ export default function Dashboard() {
 
   return (
     <>
-      <Navbar />
+      <Navbar user={user} />
       <div className="container">
         <div style={{ marginBottom: '32px' }}>
           <h2 style={{ fontSize: '28px', fontWeight: '700', marginBottom: '8px' }}>

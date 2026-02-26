@@ -29,6 +29,27 @@ const api = {
   get: (endpoint) => request(endpoint),
   post: (endpoint, data) => request(endpoint, { method: 'POST', body: JSON.stringify(data) }),
   delete: (endpoint) => request(endpoint, { method: 'DELETE' }),
+
+  // Auth
+  login: (username, password) => request('/users/login', {
+    method: 'POST',
+    body: JSON.stringify({ username, password }),
+  }),
+  register: (username, email, password) => request('/users', {
+    method: 'POST',
+    body: JSON.stringify({ username, email, password }),
+  }),
+
+  // Submissions
+  submitAnswer: (userId, questionId, answerText) => request('/submissions', {
+    method: 'POST',
+    body: JSON.stringify({ userId, questionId, answerText }),
+  }),
+  getSubmissions: (userId) => request(`/submissions/user/${userId}`),
+  getSubmission: (id) => request(`/submissions/${id}`),
+
+  // Progress
+  getProgress: (userId) => request(`/progress/${userId}`),
 };
 
 export default api;

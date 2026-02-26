@@ -3,7 +3,7 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import api from '../services/api';
 
-export default function Questions() {
+export default function Questions({ user }) {
   const [questions, setQuestions] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchParams] = useSearchParams();
@@ -43,12 +43,12 @@ export default function Questions() {
   };
 
   if (loading) {
-    return (<><Navbar /><div className="container"><p className="text-secondary">Ladataan...</p></div></>);
+    return (<><Navbar user={user} /><div className="container"><p className="text-secondary">Ladataan...</p></div></>);
   }
 
   return (
     <>
-      <Navbar />
+      <Navbar user={user} />
       <div className="container">
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
           <h2 style={{ fontSize: '24px', fontWeight: '700' }}>

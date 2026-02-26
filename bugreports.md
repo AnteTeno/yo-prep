@@ -79,7 +79,7 @@ Both users created with same username. Login broken.
 
 ### Resolution
 Added validation:
-```java
+```
 if (userRepository.findUserByUsername(user.getUsername()) != null) {
     throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Username already exists");
 }
@@ -116,7 +116,7 @@ Password stored as plaintext "MyPassword123"
 
 ### Resolution
 Added password hashing:
-```java
+```
 user.setPassword(passwordEncoder.encode(user.getPassword()));
 ```
 
@@ -152,7 +152,7 @@ HTTP 500 Internal Server Error with stack trace
 
 ### Resolution
 Added empty check:
-```java
+```
 List<Question> questions = questionRepository.findAll();
 if (questions.isEmpty()) {
     throw new ResponseStatusException(HttpStatus.NOT_FOUND, "No questions available");
@@ -189,7 +189,7 @@ No validation on `difficulty` field
 
 ### Resolution
 Changed to Enum:
-```java
+```
 @Enumerated(EnumType.STRING)
 @Column(nullable = false)
 private DifficultyLevel difficulty;

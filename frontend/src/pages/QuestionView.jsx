@@ -3,12 +3,13 @@ import { useParams, useNavigate } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import api from '../services/api';
 
-export default function QuestionView() {
+export default function QuestionView({ user }) {
   const { questionId } = useParams();
   const [question, setQuestion] = useState(null);
   const [userAnswer, setUserAnswer] = useState('');
   const [feedback, setFeedback] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [evaluating, setEvaluating] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -17,18 +18,40 @@ export default function QuestionView() {
       .catch(() => setLoading(false));
   }, [questionId]);
 
-  const checkAnswer = () => {
+  const checkAnswer = async () => {
     if (!userAnswer.trim()) return;
 
-    const isCorrect = userAnswer.trim().toLowerCase() === question.correctAnswer.toLowerCase();
-    setFeedback({
-      isCorrect,
-      correctAnswer: question.correctAnswer,
-    });
+    if (user) {
+      // AI evaluation via backend
+      setEvaluating(true);
+      try {
+        const submission = await api.submitAnswer(user.id, question.id, userAnswer);
+        setFeedback({
+          isAi: true,
+          grade: submission.aiGrade,
+          score: submission.aiScore,
+          maxScore: question.points,
+          feedbackText: submission.aiFeedback,
+        });
+      } catch {
+        // Fallback to simple check
+        setFeedback({
+          isAi: false,
+          isCorrect: userAnswer.trim().toLowerCase() === question.correctAnswer.toLowerCase(),
+          correctAnswer: question.correctAnswer,
+        });
+      } finally {
+        setEvaluating(false);
+      }
+    } else {
+      // Simple string comparison for non-logged-in users
+      const isCorrect = userAnswer.trim().toLowerCase() === question.correctAnswer.toLowerCase();
+      setFeedback({ isAi: false, isCorrect, correctAnswer: question.correctAnswer });
+    }
   };
 
   const handleKeyDown = (e) => {
-    if (e.key === 'Enter' && !feedback) {
+    if (e.key === 'Enter' && !feedback && !evaluating) {
       checkAnswer();
     }
   };
@@ -48,14 +71,18 @@ export default function QuestionView() {
     easy: 'var(--color-success)', medium: 'var(--color-warning)', hard: 'var(--color-error)',
   };
 
+  const gradeColors = {
+    l: '#10B981', m: '#34D399', c: '#3B82F6', b: '#F59E0B', a: '#EF4444', i: '#DC2626',
+  };
+
   if (loading) {
-    return (<><Navbar /><div className="container"><p className="text-secondary">Ladataan...</p></div></>);
+    return (<><Navbar user={user} /><div className="container"><p className="text-secondary">Ladataan...</p></div></>);
   }
 
   if (!question) {
     return (
       <>
-        <Navbar />
+        <Navbar user={user} />
         <div className="container">
           <p className="text-error">Kysymysta ei loytynyt.</p>
           <button className="btn-secondary" style={{ marginTop: '16px' }} onClick={() => navigate('/questions')}>
@@ -68,7 +95,7 @@ export default function QuestionView() {
 
   return (
     <>
-      <Navbar />
+      <Navbar user={user} />
       <div className="container" style={{ maxWidth: '800px' }}>
         <button
           className="btn-secondary"
@@ -131,37 +158,94 @@ export default function QuestionView() {
           <label style={{ display: 'block', marginBottom: '8px', fontSize: '14px', fontWeight: '500' }}>
             Vastauksesi
           </label>
-          <input
-            type="text"
+          <textarea
             value={userAnswer}
             onChange={(e) => setUserAnswer(e.target.value)}
-            onKeyDown={handleKeyDown}
             placeholder="Kirjoita vastaus..."
-            disabled={!!feedback}
+            disabled={!!feedback || evaluating}
+            rows={4}
             style={{
               width: '100%',
               padding: '14px',
               fontSize: '16px',
+              resize: 'vertical',
+              fontFamily: 'inherit',
               borderColor: feedback
-                ? (feedback.isCorrect ? 'var(--color-success)' : 'var(--color-error)')
+                ? (feedback.isAi ? gradeColors[feedback.grade] || 'var(--border-default)' : (feedback.isCorrect ? 'var(--color-success)' : 'var(--color-error)'))
                 : 'var(--border-default)',
             }}
           />
         </div>
 
         {/* Actions */}
-        {!feedback ? (
+        {!feedback && !evaluating ? (
           <button
             className="btn-primary"
             style={{ width: '100%', padding: '14px', fontSize: '16px' }}
             onClick={checkAnswer}
             disabled={!userAnswer.trim()}
           >
-            Tarkista vastaus
+            {user ? 'Lahetä arvioitavaksi' : 'Tarkista vastaus'}
           </button>
+        ) : evaluating ? (
+          <div className="card" style={{ padding: '32px', textAlign: 'center' }}>
+            <p style={{ fontSize: '16px', fontWeight: '500', marginBottom: '8px' }}>
+              AI arvioi vastaustasi...
+            </p>
+            <p className="text-secondary" style={{ fontSize: '14px' }}>
+              Tama voi kestaa hetken
+            </p>
+          </div>
+        ) : feedback.isAi ? (
+          <div>
+            {/* AI Feedback */}
+            <div className="card" style={{
+              marginBottom: '16px',
+              borderColor: gradeColors[feedback.grade] || 'var(--border-default)',
+              padding: '24px',
+            }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                  <span style={{
+                    fontSize: '28px',
+                    fontWeight: '700',
+                    color: gradeColors[feedback.grade] || 'var(--text-primary)',
+                    textTransform: 'uppercase',
+                  }}>
+                    {feedback.grade}
+                  </span>
+                  <span style={{ fontSize: '15px', fontWeight: '500' }}>
+                    AI-arviointi
+                  </span>
+                </div>
+                <span style={{
+                  padding: '6px 14px',
+                  backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                  color: 'var(--color-primary)',
+                  borderRadius: '16px',
+                  fontSize: '14px',
+                  fontWeight: '600',
+                }}>
+                  {feedback.score} / {feedback.maxScore} p
+                </span>
+              </div>
+              <p style={{ fontSize: '15px', lineHeight: '1.6', whiteSpace: 'pre-wrap' }}>
+                {feedback.feedbackText}
+              </p>
+            </div>
+
+            <div style={{ display: 'flex', gap: '12px' }}>
+              <button className="btn-secondary" style={{ flex: 1, padding: '14px' }} onClick={reset}>
+                Yrita uudelleen
+              </button>
+              <button className="btn-primary" style={{ flex: 1, padding: '14px' }} onClick={() => navigate('/questions')}>
+                Seuraava kysymys
+              </button>
+            </div>
+          </div>
         ) : (
           <div>
-            {/* Feedback */}
+            {/* Simple feedback */}
             <div className="card" style={{
               marginBottom: '16px',
               borderColor: feedback.isCorrect ? 'var(--color-success)' : 'var(--color-error)',
@@ -180,6 +264,11 @@ export default function QuestionView() {
               {!feedback.isCorrect && (
                 <p style={{ fontSize: '15px', lineHeight: '1.5' }}>
                   Oikea vastaus: <strong>{feedback.correctAnswer}</strong>
+                </p>
+              )}
+              {!user && (
+                <p className="text-secondary" style={{ fontSize: '13px', marginTop: '8px' }}>
+                  Kirjaudu sisaan saadaksesi AI-arvioinnin!
                 </p>
               )}
             </div>
